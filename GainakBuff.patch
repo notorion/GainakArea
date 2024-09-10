@@ -1,0 +1,142 @@
+### Eclipse Workspace Patch 1.0
+#P L2J_Mobius_11.3_Shinemaker
+diff --git dist/game/data/scripts/ai/others/GainakBuff/33834.html dist/game/data/scripts/ai/others/GainakBuff/33834.html
+new file mode 100644
+index 0000000..56f0cfa
+--- /dev/null
++++ dist/game/data/scripts/ai/others/GainakBuff/33834.html
+@@ -0,0 +1,19 @@
++<html><body>Lezonne:<br>
++Are you a mercenary too?<br>
++We've had a lot of them lately. Probably to ward
++off the Mysterious Assassins who occasionally
++invade and turn this place into a <font color=LEVEL>battlefield</font>.   
++<br>
++And then it becomes peaceful again. But we
++don't know when it becomes a <font color=LEVEL>battlefield</font> or how
++long the <font color=LEVEL>battlefield</font> remains, so it's frustrating.
++<br>
++I wonder what's going on...
++<br>
++We don't know when it will turn into a
++<font color=LEVEL>battlefield</font>, so I can give you a buff just in
++case... I can't give it to you for free... It will be 
++<font color=LEVEL>200000 Adena</font>.
++<br>
++<Button ALIGN=LEFT ICON="NORMAL" action="bypass -h npc_%objectId%_Quest GainakBuff donate_adena">Give him Adena and get the buff.</Button>
++</body></html>
+\ No newline at end of file
+diff --git dist/game/data/scripts/ai/others/GainakBuff/GainakBuff.java dist/game/data/scripts/ai/others/GainakBuff/GainakBuff.java
+new file mode 100644
+index 0000000..f671d19
+--- /dev/null
++++ dist/game/data/scripts/ai/others/GainakBuff/GainakBuff.java
+@@ -0,0 +1,93 @@
++/*
++ * This file is part of the L2J Mobius project.
++ * 
++ * This program is free software: you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation, either version 3 of the License, or
++ * (at your option) any later version.
++ * 
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
++ * General Public License for more details.
++ * 
++ * You should have received a copy of the GNU General Public License
++ * along with this program. If not, see <http://www.gnu.org/licenses/>.
++ */
++package ai.others.GainakBuff;
++
++import org.l2jmobius.gameserver.model.actor.Npc;
++import org.l2jmobius.gameserver.model.actor.Player;
++import org.l2jmobius.gameserver.model.holders.SkillHolder;
++import org.l2jmobius.gameserver.model.skill.SkillCaster;
++
++import ai.AbstractNpcAI;
++
++/**
++ * Base Adventurers Guide AI.
++ * @author St3eT - adapted for Gainak by Notorion
++ */
++public class GainakBuff extends AbstractNpcAI
++{
++	// NPC
++	private static final int[] LEZONNE =
++	{
++		33834
++	};
++	// Items
++	private static final int ADENA = 57;
++	// Skills
++	private static final SkillHolder[] DONATE_BUFFS =
++	{
++		new SkillHolder(11517, 1), // Horn Melody
++		new SkillHolder(11518, 1), // Drum Melody
++		new SkillHolder(11519, 1), // Pipe Organ Melody
++		new SkillHolder(11520, 1), // Guitar Melody
++		new SkillHolder(30812, 1), // Fantasia Harmony
++	};
++	
++	private GainakBuff()
++	{
++		addStartNpc(LEZONNE);
++		addTalkId(LEZONNE);
++		addFirstTalkId(LEZONNE);
++	}
++	
++	@Override
++	public String onEvent(String event, Npc npc, Player player)
++	{
++		String htmltext = null;
++		switch (event)
++		{
++			case "index":
++			{
++				htmltext = npc.getId() + ".html";
++				break;
++			}
++			
++			case "donate_adena":
++			{
++				if (getQuestItemsCount(player, ADENA) >= 200000)
++				{
++					takeItems(player, ADENA, 200000);
++					for (SkillHolder holder : DONATE_BUFFS)
++					{
++						SkillCaster.triggerCast(npc, player, holder.getSkill());
++					}
++				}
++				else
++				{
++					htmltext = "noItems.html";
++				}
++				break;
++			}
++			
++		}
++		return htmltext;
++	}
++	
++	public static void main(String[] args)
++	{
++		new GainakBuff();
++	}
++}
+\ No newline at end of file
+diff --git dist/game/data/scripts/ai/others/GainakBuff/noItems.html dist/game/data/scripts/ai/others/GainakBuff/noItems.html
+new file mode 100644
+index 0000000..f2fd751
+--- /dev/null
++++ dist/game/data/scripts/ai/others/GainakBuff/noItems.html
+@@ -0,0 +1,7 @@
++<html><body>Lezonne:<br>
++You don't have enough Adena? Did you get
++robbed or something? Not even a paltry <font color="LEVEL">200,000 Adenas</FONT>?
++<br>
++Well, sorry. I'm a business person, not a
++philanthropist. I can't help you.
++</body></html>
+\ No newline at end of file
